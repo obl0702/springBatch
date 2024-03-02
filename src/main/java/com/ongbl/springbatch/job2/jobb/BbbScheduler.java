@@ -1,4 +1,4 @@
-package com.ongbl.springbatch.job;
+package com.ongbl.springbatch.job2.jobb;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,19 +13,19 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ParentScheduler {
+public class BbbScheduler {
     private final JobLauncher jobLauncher;
 
-    @Qualifier("parentJob")
-    private final Job job;
+    @Qualifier("bbbJob")
+    private final Job bbbJob;
 
-    @Scheduled(cron = "35 * * * * ?")
+    @Scheduled(cron = "55 * * * * ?")
     public void perform() throws Exception
     {
         JobParameters params = new JobParametersBuilder()
                 .addString("JobID", String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
 
-        jobLauncher.run(job, params);
+        jobLauncher.run(bbbJob, params);
     }
 }
