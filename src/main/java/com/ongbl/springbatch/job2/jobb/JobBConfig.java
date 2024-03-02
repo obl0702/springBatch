@@ -1,6 +1,10 @@
-package com.ongbl.springbatch.job;
+package com.ongbl.springbatch.job2.jobb;
 
 import com.ongbl.springbatch.db.entity.Parent;
+import com.ongbl.springbatch.job.ParentProcessor;
+import com.ongbl.springbatch.job2.config.JobCommonListenerV2;
+import com.ongbl.springbatch.job2.config.StockService;
+import com.ongbl.springbatch.job2.config.TotalCountStrategyFactory;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
@@ -26,36 +30,38 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class ParentJobConfig implements CountProvider{
+public class JobBConfig {
     private final PlatformTransactionManager transactionManager;
     private final EntityManagerFactory emf;
     private final JobRepository jobRepository;
     private final ParentProcessor parentProcessor;
+    private final TotalCountStrategyFactory totalCountStrategyFactory;
+    private final StockService stockService;
 
     @Bean
-    @Qualifier("parentJob")
-    public Job parentJob(Step step) {
+    @Qualifier("bbbJob")
+    public Job bbbJob(Step step) {
         return new JobBuilder
-                ("job_name", jobRepository)
+                ("bbbJob", jobRepository)
+                .listener(new JobCommonListenerV2(totalCountStrategyFactory, stockService))
                 .start(step)
-                .listener(new JobCommonListener(this))
                 .incrementer(new RunIdIncrementer())
                 .build();
     }
 
     @Bean
-    public Step step() {
-        return new StepBuilder("step_name", jobRepository)
+    public Step bbbStep() {
+        return new StepBuilder("bbbStep", jobRepository)
                 .<Parent, Parent>chunk(5, transactionManager)
-                .reader(reader())
+                .reader(bbbReader())
                 .processor(parentProcessor)
-                .writer(writer())
+                .writer(bbbWriter())
                 .build();
     }
 
     @Bean
     @StepScope
-    public JpaPagingItemReader<Parent> reader() {
+    public JpaPagingItemReader<Parent> bbbReader() {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("name", "P001");
         JpaPagingItemReader<Parent> reader = new JpaPagingItemReader<>();
@@ -67,17 +73,9 @@ public class ParentJobConfig implements CountProvider{
     }
 
     @Bean
-    public JpaItemWriter<Parent> writer() {
+    public JpaItemWriter<Parent> bbbWriter() {
         return new JpaItemWriterBuilder<Parent>()
                 .entityManagerFactory(emf)
                 .build();
-    }
-
-    @Override
-    public long getTotalCount() {
-        TypedQuery<Long> countQuery = emf.createEntityManager()
-                .createQuery("SELECT p FROM Parent p where p.name = :name", Long.class)
-                .setParameter("name", "P001");
-        return countQuery.getSingleResult();
     }
 }

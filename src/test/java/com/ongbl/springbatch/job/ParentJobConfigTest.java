@@ -1,5 +1,6 @@
 package com.ongbl.springbatch.job;
 
+import com.ongbl.springbatch.DefaultBatchConfig;
 import com.ongbl.springbatch.TestBatchConfig;
 import com.ongbl.springbatch.db.repository.ParentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,11 +11,14 @@ import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {TestBatchConfig.class, ParentJobConfig.class, ParentProcessor.class, ParentRepository.class, ParentScheduler.class})
 @SpringBatchTest
+@Import(DefaultBatchConfig.class)
 class ParentJobConfigTest {
 
     @Autowired
@@ -26,9 +30,6 @@ class ParentJobConfigTest {
 
     @Autowired
     private ParentRepository parentRepository;
-
-    @Autowired
-    private ParentScheduler parentScheduler;
 
     @BeforeEach
     void setup(){
@@ -47,9 +48,6 @@ class ParentJobConfigTest {
         assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
     }
 
-    @Test
-    void testSchedule() throws Exception {
-        parentScheduler.perform();
-    }
+
 
 }
