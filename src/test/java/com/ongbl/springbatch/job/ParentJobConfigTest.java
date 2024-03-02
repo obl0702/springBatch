@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {TestBatchConfig.class, ParentJobConfig.class, ParentProcessor.class, ParentRepository.class})
 @SpringBatchTest
